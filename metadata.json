@@ -1,0 +1,8 @@
+{
+  "name": "Zenire AI theme",
+  "description": "A premium career platform matching top talent with remote freelance opportunities.",
+  "requestFramePermissions": [],
+  "majorCapabilities": [
+    "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"
+  ]
+}

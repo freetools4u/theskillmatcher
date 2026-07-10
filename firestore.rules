@@ -1,0 +1,72 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Default Catch-all: deny all other collections
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+    // Helper functions
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function isVerifiedEmail(email) {
+      return isSignedIn() && 
+             request.auth.token.email == email && 
+             request.auth.token.email_verified == true;
+    }
+
+    function isAdmin() {
+      return isVerifiedEmail('swipetoconnect@gmail.com');
+    }
+
+    function isValidId(id) {
+      return id is string && id.size() <= 128;
+    }
+
+    function isValidJob(data) {
+      return data.title is string && data.title.size() <= 200 &&
+             data.category is string && (data.category == 'Model Training' || data.category == 'Code Trainer' || data.category == 'Quality Evaluator' || data.category == 'Domain Specialist') &&
+             data.pay is string && data.pay.size() <= 100 &&
+             data.description is string && data.description.size() <= 5000;
+    }
+
+    function isValidApplication(data) {
+      return data.name is string && data.name.size() <= 200 &&
+             data.email is string && data.email.size() <= 200 &&
+             data.skills is string && data.skills.size() <= 500 &&
+             data.createdAt is string;
+    }
+
+    function isValidInquiry(data) {
+      return data.companyName is string && data.companyName.size() <= 200 &&
+             data.contactName is string && data.contactName.size() <= 200 &&
+             data.email is string && data.email.size() <= 200 &&
+             data.needs is string && data.needs.size() <= 500 &&
+             data.createdAt is string;
+    }
+
+    match /jobs/{jobId} {
+      // Allow public read for candidates to see job listings
+      allow read: if true;
+      // Restrict all CRUD write operations to authenticated administrators
+      allow create, delete: if isAdmin() && isValidId(jobId) && (request.method == 'delete' || isValidJob(request.resource.data));
+      allow update: if isAdmin() && isValidId(jobId) && isValidJob(request.resource.data);
+    }
+
+    match /applications/{applicationId} {
+      // Allow anyone to submit an application
+      allow create: if isValidId(applicationId) && isValidApplication(request.resource.data);
+      // Only administrators can read or manage applications
+      allow read, update, delete: if isAdmin();
+    }
+
+    match /inquiries/{inquiryId} {
+      // Allow anyone to submit a hiring inquiry
+      allow create: if isValidId(inquiryId) && isValidInquiry(request.resource.data);
+      // Only administrators can read or manage inquiries
+      allow read, update, delete: if isAdmin();
+    }
+  }
+}

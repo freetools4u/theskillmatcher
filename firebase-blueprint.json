@@ -1,0 +1,151 @@
+{
+  "entities": {
+    "job": {
+      "title": "Job Position",
+      "description": "An active open remote job listing at Zenire AI",
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "The unique ID of the job"
+        },
+        "title": {
+          "type": "string",
+          "description": "The job title"
+        },
+        "date": {
+          "type": "string",
+          "description": "The posting date, formatted as 'MMM DD, YYYY'"
+        },
+        "category": {
+          "type": "string",
+          "enum": ["Model Training", "Code Trainer", "Quality Evaluator", "Domain Specialist"],
+          "description": "The job category"
+        },
+        "skills": {
+          "type": "array",
+          "description": "List of required skills"
+        },
+        "experience": {
+          "type": "string",
+          "description": "The required experience"
+        },
+        "pay": {
+          "type": "string",
+          "description": "The pay rate"
+        },
+        "description": {
+          "type": "string",
+          "description": "The description of the role"
+        },
+        "scopeOfWork": {
+          "type": "array",
+          "description": "The responsibilities and tasks"
+        },
+        "preferredQualifications": {
+          "type": "array",
+          "description": "The preferred qualifications"
+        }
+      },
+      "required": ["title", "category", "skills", "pay", "description"]
+    },
+    "application": {
+      "title": "Candidate Application",
+      "description": "An application submitted by a candidate",
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "The unique ID of the application"
+        },
+        "name": {
+          "type": "string",
+          "description": "The name of the candidate"
+        },
+        "email": {
+          "type": "string",
+          "description": "The email of the candidate"
+        },
+        "skills": {
+          "type": "string",
+          "description": "The target skills or category"
+        },
+        "linkedin": {
+          "type": "string",
+          "description": "The LinkedIn or portfolio link"
+        },
+        "notes": {
+          "type": "string",
+          "description": "Additional notes"
+        },
+        "cvFileName": {
+          "type": "string",
+          "description": "The uploaded CV file name if any"
+        },
+        "jobId": {
+          "type": "string",
+          "description": "The selected job ID if applying for a specific role"
+        },
+        "jobTitle": {
+          "type": "string",
+          "description": "The selected job title if applying for a specific role"
+        },
+        "createdAt": {
+          "type": "string",
+          "description": "The timestamp when the application was created"
+        }
+      },
+      "required": ["name", "email", "skills", "createdAt"]
+    },
+    "inquiry": {
+      "title": "Recruiter Inquiry",
+      "description": "A hiring or talent sourcing inquiry submitted by a recruiter/company",
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "The unique ID of the inquiry"
+        },
+        "companyName": {
+          "type": "string",
+          "description": "The name of the company"
+        },
+        "contactName": {
+          "type": "string",
+          "description": "The contact person's name"
+        },
+        "email": {
+          "type": "string",
+          "description": "The recruiter's email address"
+        },
+        "needs": {
+          "type": "string",
+          "description": "The talent roles or category needed"
+        },
+        "notes": {
+          "type": "string",
+          "description": "Additional requirements details"
+        },
+        "createdAt": {
+          "type": "string",
+          "description": "The timestamp when the inquiry was created"
+        }
+      },
+      "required": ["companyName", "contactName", "email", "needs", "createdAt"]
+    }
+  },
+  "firestore": {
+    "/jobs/{jobId}": {
+      "schema": "job",
+      "description": "The collection of active job listings"
+    },
+    "/applications/{applicationId}": {
+      "schema": "application",
+      "description": "The collection of submitted candidate applications"
+    },
+    "/inquiries/{inquiryId}": {
+      "schema": "inquiry",
+      "description": "The collection of recruiter/company hiring inquiries"
+    }
+  }
+}
