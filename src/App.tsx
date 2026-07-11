@@ -162,7 +162,7 @@ CV / Resume: ${cvFile ? cvFile.name : "None uploaded"}`;
       // 2. Trigger mailto
       window.location.href = mailtoUrl;
 
-      setNotification(`Application for "${roleName}"${cvText} has been saved to our secure database and prepared in your email client for support@zenire.in! If your email client didn't open automatically, please send details directly to support@zenire.in.`);
+      setNotification(`Application for "${roleName}"${cvText} has been saved to our secure database! If your email client didn't open automatically, please send details directly to support@zenire.in.`);
       setExploreModalOpen(false);
       setSelectedJobToApply(null);
       setCandidateForm({ name: "", email: "", skills: "Model Training", linkedin: "", notes: "" });
@@ -172,7 +172,7 @@ CV / Resume: ${cvFile ? cvFile.name : "None uploaded"}`;
       console.error("Error saving application:", err);
       // Fallback: trigger mailto even if Firestore write fails
       window.location.href = mailtoUrl;
-      setNotification(`Application draft prepared for support@zenire.in! (Local state ready; database sync skipped: ${err instanceof Error ? err.message : "network issue"})`);
+      setNotification(`Application draft prepared! (Local state ready; database sync skipped: ${err instanceof Error ? err.message : "network issue"})`);
       setExploreModalOpen(false);
       setSelectedJobToApply(null);
       setCandidateForm({ name: "", email: "", skills: "Model Training", linkedin: "", notes: "" });
@@ -215,7 +215,7 @@ Additional Details: ${companyForm.notes || "None"}`;
       // 2. Trigger mailto
       window.location.href = mailtoUrl;
 
-      setNotification(`Hiring inquiry for "${needs}" talent has been saved to our database and prepared in your email client for support@zenire.in! A client partner will also reach out to you within 24 hours.`);
+      setNotification(`Please send hiring inquiry for "${needs}" talent manually to support@zenire.in ! A client partner will also reach out to you within 24 hours.`);
       setHireModalOpen(false);
       setCompanyForm({ companyName: "", contactName: "", email: "", needs: "Data Labeling", notes: "" });
       setTimeout(() => setNotification(null), 15000);
@@ -263,7 +263,8 @@ Additional Details: ${companyForm.notes || "None"}`;
     pay: "",
     description: "",
     scopeOfWork: "",
-    preferredQualifications: ""
+    preferredQualifications: "",
+    applyUrl: ""
   });
 
   // Track Auth State changes
@@ -325,7 +326,8 @@ Additional Details: ${companyForm.notes || "None"}`;
         pay: editingJob.pay,
         description: editingJob.description,
         scopeOfWork: editingJob.scopeOfWork ? editingJob.scopeOfWork.join("\n") : "",
-        preferredQualifications: editingJob.preferredQualifications ? editingJob.preferredQualifications.join("\n") : ""
+        preferredQualifications: editingJob.preferredQualifications ? editingJob.preferredQualifications.join("\n") : "",
+        applyUrl: editingJob.applyUrl || ""
       });
     } else {
       setJobForm({
@@ -336,7 +338,8 @@ Additional Details: ${companyForm.notes || "None"}`;
         pay: "",
         description: "",
         scopeOfWork: "",
-        preferredQualifications: ""
+        preferredQualifications: "",
+        applyUrl: ""
       });
     }
   }, [editingJob]);
@@ -402,7 +405,8 @@ Additional Details: ${companyForm.notes || "None"}`;
         description: jobForm.description,
         scopeOfWork: scopeArray,
         preferredQualifications: qualArray,
-        date: editingJob ? editingJob.date : new Date().toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })
+        date: editingJob ? editingJob.date : new Date().toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" }),
+        applyUrl: jobForm.applyUrl ? jobForm.applyUrl.trim() : ""
       };
 
       if (editingJob) {
@@ -425,7 +429,8 @@ Additional Details: ${companyForm.notes || "None"}`;
         pay: "",
         description: "",
         scopeOfWork: "",
-        preferredQualifications: ""
+        preferredQualifications: "",
+        applyUrl: ""
       });
       
       setTimeout(() => setNotification(null), 5000);
@@ -1957,9 +1962,13 @@ Additional Details: ${companyForm.notes || "None"}`;
                         <button 
                           onClick={(e) => {
                             e.stopPropagation();
-                            setSelectedJobToApply(job);
-                            setCandidateForm(prev => ({ ...prev, skills: job.title }));
-                            setExploreModalOpen(true);
+                            if (job.applyUrl) {
+                              window.open(job.applyUrl, "_blank", "noopener,noreferrer");
+                            } else {
+                              const subject = `Application: ${job.title} - Zenire.in`;
+                              const body = `Hi Zenire Operations Team,\n\nI want to apply for the "${job.title}" position (${job.pay}, Remote).\n\nName:\nEmail:\nLinkedIn/Portfolio:\nAttached Resume/Notes:\n\nThank you!`;
+                              window.open(`mailto:support@zenire.in?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`, "_self");
+                            }
                           }}
                           className="text-center py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-[10px] font-bold uppercase tracking-wider shadow-sm transition"
                         >
@@ -2672,6 +2681,17 @@ Additional Details: ${companyForm.notes || "None"}`;
                           placeholder="Bachelor's in Computer Science or similar&#10;Prior RLHF training experience&#10;Native level English fluency"
                           rows={3}
                           className="w-full border border-slate-200 rounded-xl px-3 py-2.5 text-xs text-slate-900 focus:border-emerald-500 focus:outline-none transition resize-none bg-slate-50/50"
+                        />
+                      </div>
+
+                      <div>
+                        <label className="block text-[10px] font-bold text-slate-700 uppercase tracking-wide mb-1">Apply URL (Optional manual external link, e.g. https://forms.gle/...)</label>
+                        <input 
+                          type="url"
+                          value={jobForm.applyUrl}
+                          onChange={(e) => setJobForm({ ...jobForm, applyUrl: e.target.value })}
+                          placeholder="e.g., https://forms.gle/your-custom-form-id"
+                          className="w-full border border-slate-200 rounded-xl px-3 py-2.5 text-xs text-slate-900 focus:border-emerald-500 focus:outline-none transition bg-slate-50/50"
                         />
                       </div>
 
@@ -3452,10 +3472,16 @@ Additional Details: ${companyForm.notes || "None"}`;
                   <button
                     onClick={() => {
                       const job = selectedJobDetails;
-                      setSelectedJobDetails(null);
-                      setSelectedJobToApply(job);
-                      setCandidateForm(prev => ({ ...prev, skills: job.title }));
-                      setExploreModalOpen(true);
+                      if (job) {
+                        setSelectedJobDetails(null);
+                        if (job.applyUrl) {
+                          window.open(job.applyUrl, "_blank", "noopener,noreferrer");
+                        } else {
+                          const subject = `Application: ${job.title} - Zenire.in`;
+                          const body = `Hi Zenire Operations Team,\n\nI want to apply for the "${job.title}" position (${job.pay}, Remote).\n\nName:\nEmail:\nLinkedIn/Portfolio:\nAttached Resume/Notes:\n\nThank you!`;
+                          window.open(`mailto:support@zenire.in?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`, "_self");
+                        }
+                      }
                     }}
                     className="flex-1 bg-emerald-600 hover:bg-emerald-700 text-white py-3 rounded-xl font-bold text-xs uppercase tracking-widest shadow-md hover:shadow-lg active:scale-[0.98] transition flex items-center justify-center gap-1.5"
                   >
