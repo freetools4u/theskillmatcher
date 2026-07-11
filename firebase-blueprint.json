@@ -45,6 +45,10 @@
         "preferredQualifications": {
           "type": "array",
           "description": "The preferred qualifications"
+        },
+        "applyUrl": {
+          "type": "string",
+          "description": "The optional manual external link for application"
         }
       },
       "required": ["title", "category", "skills", "pay", "description"]
