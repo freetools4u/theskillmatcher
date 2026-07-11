@@ -29,7 +29,8 @@ service cloud.firestore {
       return data.title is string && data.title.size() <= 200 &&
              data.category is string && (data.category == 'Model Training' || data.category == 'Code Trainer' || data.category == 'Quality Evaluator' || data.category == 'Domain Specialist') &&
              data.pay is string && data.pay.size() <= 100 &&
-             data.description is string && data.description.size() <= 5000;
+             data.description is string && data.description.size() <= 5000 &&
+             (!('applyUrl' in data) || (data.applyUrl is string && data.applyUrl.size() <= 1000));
     }
 
     function isValidApplication(data) {
