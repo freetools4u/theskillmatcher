@@ -475,6 +475,219 @@ Additional Details: ${companyForm.notes || "None"}`;
   // Selected job for applying
   const [selectedJobToApply, setSelectedJobToApply] = useState<JobPosition | null>(null);
 
+  // SEO & Deep-linking Hooks
+  // 1. On mount (or when jobs list is populated), open deep-linked job if "job" query parameter exists
+  useEffect(() => {
+    if (typeof window !== "undefined" && jobs.length > 0) {
+      const params = new URLSearchParams(window.location.search);
+      const jobId = params.get("job");
+      if (jobId) {
+        const matchingJob = jobs.find((j) => j.id === jobId);
+        if (matchingJob) {
+          setSelectedJobDetails(matchingJob);
+        }
+      }
+    }
+  }, [jobs]);
+
+  // 2. Synchronize url parameters whenever selectedJobDetails changes
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      const params = new URLSearchParams(window.location.search);
+      const currentJobId = params.get("job");
+      
+      if (selectedJobDetails) {
+        if (currentJobId !== selectedJobDetails.id) {
+          params.set("job", selectedJobDetails.id);
+          const newUrl = `${window.location.pathname}?${params.toString()}`;
+          window.history.pushState({ jobId: selectedJobDetails.id }, "", newUrl);
+        }
+      } else {
+        if (currentJobId) {
+          params.delete("job");
+          const queryStr = params.toString();
+          const newUrl = queryStr ? `${window.location.pathname}?${queryStr}` : window.location.pathname;
+          window.history.pushState(null, "", newUrl);
+        }
+      }
+    }
+  }, [selectedJobDetails]);
+
+  // 3. Keep selectedJobDetails in sync with browser Back/Forward navigation
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+
+    const handlePopState = () => {
+      const params = new URLSearchParams(window.location.search);
+      const jobId = params.get("job");
+      if (jobId) {
+        const matchingJob = jobs.find((j) => j.id === jobId);
+        if (matchingJob) {
+          setSelectedJobDetails(matchingJob);
+        } else {
+          setSelectedJobDetails(null);
+        }
+      } else {
+        setSelectedJobDetails(null);
+      }
+    };
+
+    window.addEventListener("popstate", handlePopState);
+    return () => window.removeEventListener("popstate", handlePopState);
+  }, [jobs]);
+
+  // 4. Dynamically inject Meta descriptions, page Title, canonical link, and JSON-LD structured schemas
+  useEffect(() => {
+    if (typeof document === "undefined") return;
+
+    const removeExistingSchema = () => {
+      const oldSchema = document.getElementById("zenire-jsonld-schema");
+      if (oldSchema) oldSchema.remove();
+    };
+
+    if (selectedJobDetails) {
+      // Set Job-specific SEO metadata
+      const jobTitle = `${selectedJobDetails.title} - Remote ${selectedJobDetails.category} Job | Zenire.in`;
+      document.title = jobTitle;
+
+      let metaDesc = document.querySelector('meta[name="description"]');
+      if (!metaDesc) {
+        metaDesc = document.createElement("meta");
+        metaDesc.setAttribute("name", "description");
+        document.head.appendChild(metaDesc);
+      }
+      metaDesc.setAttribute("content", `Apply for ${selectedJobDetails.title} at Zenire.in. Remote role paying ${selectedJobDetails.pay}. Preferred experience: ${selectedJobDetails.experience}. ${selectedJobDetails.description}`);
+
+      let canonicalLink = document.querySelector('link[rel="canonical"]');
+      if (!canonicalLink) {
+        canonicalLink = document.createElement("link");
+        canonicalLink.setAttribute("rel", "canonical");
+        document.head.appendChild(canonicalLink);
+      }
+      canonicalLink.setAttribute("href", `https://zenire.in/?job=${selectedJobDetails.id}`);
+
+      // Inject structured JobPosting JSON-LD for Search Engines
+      removeExistingSchema();
+      const schemaScript = document.createElement("script");
+      schemaScript.id = "zenire-jsonld-schema";
+      schemaScript.type = "application/ld+json";
+      
+      const jobSchema = {
+        "@context": "https://schema.org",
+        "@type": "JobPosting",
+        "title": selectedJobDetails.title,
+        "description": `
+          <p>${selectedJobDetails.description}</p>
+          <h4>Scope of Work:</h4>
+          <ul>
+            ${selectedJobDetails.scopeOfWork ? selectedJobDetails.scopeOfWork.map(item => `<li>${item}</li>`).join("") : ""}
+          </ul>
+          <h4>Preferred Qualifications:</h4>
+          <ul>
+            ${selectedJobDetails.preferredQualifications ? selectedJobDetails.preferredQualifications.map(item => `<li>${item}</li>`).join("") : ""}
+          </ul>
+        `,
+        "datePosted": "2026-07-10",
+        "validThrough": "2027-07-10",
+        "employmentType": "CONTRACT",
+        "hiringOrganization": {
+          "@type": "Organization",
+          "name": "Zenire.in",
+          "sameAs": "https://zenire.in/",
+          "logo": "https://zenire.in/assets/images/zenire_logo_1783707601229.jpg"
+        },
+        "jobLocation": {
+          "@type": "Place",
+          "address": {
+            "@type": "PostalAddress",
+            "addressCountry": "US",
+            "addressRegion": "Remote",
+            "addressLocality": "Remote"
+          }
+        },
+        "jobLocationType": "TELECOMMUTE",
+        "applicantLocationRequirements": {
+          "@type": "AreaServed",
+          "name": "Global"
+        },
+        "baseSalary": {
+          "@type": "MonetaryAmount",
+          "currency": "USD",
+          "value": {
+            "@type": "QuantitativeValue",
+            "value": parseFloat(selectedJobDetails.pay.replace(/[^0-9.]/g, "")) || 40,
+            "unitText": "HOUR"
+          }
+        }
+      };
+
+      schemaScript.text = JSON.stringify(jobSchema);
+      document.head.appendChild(schemaScript);
+
+    } else {
+      // Restore default Homepage SEO metadata
+      document.title = "Zenire.in - Find Remote Jobs, Freelance AI Projects & Tech Contracts";
+
+      let metaDesc = document.querySelector('meta[name="description"]');
+      if (metaDesc) {
+        metaDesc.setAttribute("content", "Discover high-paying remote jobs, freelance AI projects, model evaluation contracts, prompt engineering gigs, and coding trainer opportunities. Connect directly with global tech giants on Zenire.in.");
+      }
+
+      let canonicalLink = document.querySelector('link[rel="canonical"]');
+      if (canonicalLink) {
+        canonicalLink.setAttribute("href", "https://zenire.in/");
+      }
+
+      // Inject Graph Schema for Homepage
+      removeExistingSchema();
+      const schemaScript = document.createElement("script");
+      schemaScript.id = "zenire-jsonld-schema";
+      schemaScript.type = "application/ld+json";
+
+      const websiteSchema = {
+        "@context": "https://schema.org",
+        "@graph": [
+          {
+            "@type": "WebSite",
+            "@id": "https://zenire.in/#website",
+            "url": "https://zenire.in/",
+            "name": "Zenire.in",
+            "description": "Find remote jobs and freelance AI prompt training projects.",
+            "publisher": {
+              "@id": "https://zenire.in/#organization"
+            }
+          },
+          {
+            "@type": "Organization",
+            "@id": "https://zenire.in/#organization",
+            "name": "Zenire.in",
+            "url": "https://zenire.in/",
+            "logo": "https://zenire.in/assets/images/zenire_logo_1783707601229.jpg",
+            "sameAs": [
+              "https://twitter.com/zenire_in",
+              "https://www.linkedin.com/company/zenire"
+            ]
+          },
+          {
+            "@type": "ItemList",
+            "@id": "https://zenire.in/#joblist",
+            "name": "Active Remote Tech & AI Jobs",
+            "numberOfItems": jobs.length,
+            "itemListElement": jobs.slice(0, 15).map((job, index) => ({
+              "@type": "ListItem",
+              "position": index + 1,
+              "url": `https://zenire.in/?job=${job.id}`,
+              "name": job.title
+            }))
+          }
+        ]
+      };
+
+      schemaScript.text = JSON.stringify(websiteSchema);
+      document.head.appendChild(schemaScript);
+    }
+  }, [selectedJobDetails, jobs]);
+
   // 9 rewritten testimonials
   const testimonials = rewrittenTestimonials;
 
