@@ -141,7 +141,7 @@ LinkedIn/Portfolio: ${candidateForm.linkedin || "N/A"}
 Additional Notes: ${candidateForm.notes || "None"}
 CV / Resume: ${cvFile ? cvFile.name : "None uploaded"}`;
 
-    const mailtoUrl = `mailto:support@zenire.in?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+    const mailtoUrl = `mailto:recruitment@zenire.in?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
 
     try {
       // 1. Save to Firestore
@@ -162,7 +162,7 @@ CV / Resume: ${cvFile ? cvFile.name : "None uploaded"}`;
       // 2. Trigger mailto
       window.location.href = mailtoUrl;
 
-      setNotification(`Application for "${roleName}"${cvText} has been saved to our secure database! If your email client didn't open automatically, please send details directly to support@zenire.in.`);
+      setNotification(`Application for "${roleName}"${cvText} has been saved to our secure database! If your email client didn't open automatically, please send details directly to recruitment@zenire.in.`);
       setExploreModalOpen(false);
       setSelectedJobToApply(null);
       setCandidateForm({ name: "", email: "", skills: "Model Training", linkedin: "", notes: "" });
@@ -197,7 +197,7 @@ Email Address: ${email}
 Talent Needs: ${needs}
 Additional Details: ${companyForm.notes || "None"}`;
 
-    const mailtoUrl = `mailto:support@zenire.in?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+    const mailtoUrl = `mailto:recruitment@zenire.in?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
 
     try {
       // 1. Save to Firestore
@@ -215,7 +215,7 @@ Additional Details: ${companyForm.notes || "None"}`;
       // 2. Trigger mailto
       window.location.href = mailtoUrl;
 
-      setNotification(`Please send hiring inquiry for "${needs}" talent manually to support@zenire.in ! A client partner will also reach out to you within 24 hours.`);
+      setNotification(`Please send hiring inquiry for "${needs}" talent manually to recruitment@zenire.in ! A client partner will also reach out to you within 24 hours.`);
       setHireModalOpen(false);
       setCompanyForm({ companyName: "", contactName: "", email: "", needs: "Data Labeling", notes: "" });
       setTimeout(() => setNotification(null), 15000);
@@ -223,7 +223,7 @@ Additional Details: ${companyForm.notes || "None"}`;
       console.error("Error saving inquiry:", err);
       // Fallback
       window.location.href = mailtoUrl;
-      setNotification(`Hiring inquiry draft prepared for support@zenire.in! (Local state ready; database sync skipped: ${err instanceof Error ? err.message : "network issue"})`);
+      setNotification(`Hiring inquiry draft prepared for recruitment@zenire.in! (Local state ready; database sync skipped: ${err instanceof Error ? err.message : "network issue"})`);
       setHireModalOpen(false);
       setCompanyForm({ companyName: "", contactName: "", email: "", needs: "Data Labeling", notes: "" });
       setTimeout(() => setNotification(null), 15000);
@@ -1967,7 +1967,7 @@ Additional Details: ${companyForm.notes || "None"}`;
                             } else {
                               const subject = `Application: ${job.title} - Zenire.in`;
                               const body = `Hi Zenire Operations Team,\n\nI want to apply for the "${job.title}" position (${job.pay}, Remote).\n\nName:\nEmail:\nLinkedIn/Portfolio:\nAttached Resume/Notes:\n\nThank you!`;
-                              window.open(`mailto:support@zenire.in?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`, "_self");
+                              window.open(`mailto:recruitment@zenire.in?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`, "_self");
                             }
                           }}
                           className="text-center py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-[10px] font-bold uppercase tracking-wider shadow-sm transition"
@@ -2247,7 +2247,7 @@ Additional Details: ${companyForm.notes || "None"}`;
               <section className="space-y-2">
                 <h3 className="text-sm font-black text-slate-900 uppercase tracking-wider">6. Contact Information</h3>
                 <p>
-                  For any privacy inquiries, please reach out directly to our support desk at <strong className="text-emerald-700">support@zenire.in</strong>.
+                  For any privacy inquiries, please reach out directly to our support desk at <strong className="text-emerald-700">recruitment@zenire.in</strong>.
                 </p>
               </section>
             </div>
@@ -2971,9 +2971,6 @@ Additional Details: ${companyForm.notes || "None"}`;
                     <h3 className="text-base font-black text-slate-900 leading-none">
                       {selectedJobToApply ? "Apply for Position" : "Apply for Opportunities"}
                     </h3>
-                    <span className="text-[10px] uppercase font-bold tracking-wider text-emerald-600 block mt-0.5">
-                      Sends automatically to support@zenire.in
-                    </span>
                   </div>
                 </div>
 
@@ -3178,9 +3175,6 @@ Additional Details: ${companyForm.notes || "None"}`;
                   </div>
                   <div>
                     <h3 className="text-base font-black text-slate-900 leading-none">Hire Verified Talent</h3>
-                    <span className="text-[10px] uppercase font-bold tracking-wider text-emerald-600 block mt-0.5">
-                      Sends automatically to support@zenire.in
-                    </span>
                   </div>
                 </div>
 
@@ -3479,7 +3473,7 @@ Additional Details: ${companyForm.notes || "None"}`;
                         } else {
                           const subject = `Application: ${job.title} - Zenire.in`;
                           const body = `Hi Zenire Operations Team,\n\nI want to apply for the "${job.title}" position (${job.pay}, Remote).\n\nName:\nEmail:\nLinkedIn/Portfolio:\nAttached Resume/Notes:\n\nThank you!`;
-                          window.open(`mailto:support@zenire.in?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`, "_self");
+                          window.open(`mailto:recruitment@zenire.in?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`, "_self");
                         }
                       }
                     }}
