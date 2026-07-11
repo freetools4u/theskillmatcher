@@ -9,6 +9,7 @@ export interface JobPosition {
   description: string;
   scopeOfWork: string[];
   preferredQualifications: string[];
+  applyUrl?: string;
 }
 
 export interface TestimonialData {
