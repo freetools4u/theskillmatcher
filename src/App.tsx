@@ -41,7 +41,7 @@ import {
 import { motion, AnimatePresence } from "motion/react";
 import { rawJobsData, rewrittenTestimonials, JobPosition } from "./jobsData";
 import { onAuthStateChanged, User } from "firebase/auth";
-import { collection, onSnapshot, doc, setDoc, deleteDoc, getDocFromServer } from "firebase/firestore";
+import { collection, onSnapshot, doc, setDoc, deleteDoc, getDocFromServer, updateDoc, increment, getDoc } from "firebase/firestore";
 import { db, auth, googleProvider, signInWithPopup, signOut, handleFirestoreError, OperationType } from "./firebase";
 // @ts-ignore
 import logoImg from "./assets/images/zenire_logo_1783707601229.jpg";
@@ -141,7 +141,7 @@ LinkedIn/Portfolio: ${candidateForm.linkedin || "N/A"}
 Additional Notes: ${candidateForm.notes || "None"}
 CV / Resume: ${cvFile ? cvFile.name : "None uploaded"}`;
 
-    const mailtoUrl = `mailto:recruitment@zenire.in?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+    const mailtoUrl = `mailto:support@zenire.in?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
 
     try {
       // 1. Save to Firestore
@@ -162,7 +162,7 @@ CV / Resume: ${cvFile ? cvFile.name : "None uploaded"}`;
       // 2. Trigger mailto
       window.location.href = mailtoUrl;
 
-      setNotification(`Application for "${roleName}"${cvText} has been saved to our secure database! If your email client didn't open automatically, please send details directly to recruitment@zenire.in.`);
+      setNotification(`Application for "${roleName}"${cvText} has been saved to our secure database and prepared in your email client for support@zenire.in! If your email client didn't open automatically, please send details directly to support@zenire.in.`);
       setExploreModalOpen(false);
       setSelectedJobToApply(null);
       setCandidateForm({ name: "", email: "", skills: "Model Training", linkedin: "", notes: "" });
@@ -172,7 +172,7 @@ CV / Resume: ${cvFile ? cvFile.name : "None uploaded"}`;
       console.error("Error saving application:", err);
       // Fallback: trigger mailto even if Firestore write fails
       window.location.href = mailtoUrl;
-      setNotification(`Application draft prepared! (Local state ready; database sync skipped: ${err instanceof Error ? err.message : "network issue"})`);
+      setNotification(`Application draft prepared for support@zenire.in! (Local state ready; database sync skipped: ${err instanceof Error ? err.message : "network issue"})`);
       setExploreModalOpen(false);
       setSelectedJobToApply(null);
       setCandidateForm({ name: "", email: "", skills: "Model Training", linkedin: "", notes: "" });
@@ -197,7 +197,7 @@ Email Address: ${email}
 Talent Needs: ${needs}
 Additional Details: ${companyForm.notes || "None"}`;
 
-    const mailtoUrl = `mailto:recruitment@zenire.in?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+    const mailtoUrl = `mailto:support@zenire.in?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
 
     try {
       // 1. Save to Firestore
@@ -215,7 +215,7 @@ Additional Details: ${companyForm.notes || "None"}`;
       // 2. Trigger mailto
       window.location.href = mailtoUrl;
 
-      setNotification(`Please send hiring inquiry for "${needs}" talent manually to recruitment@zenire.in ! A client partner will also reach out to you within 24 hours.`);
+      setNotification(`Hiring inquiry for "${needs}" talent has been saved to our database and prepared in your email client for support@zenire.in! A client partner will also reach out to you within 24 hours.`);
       setHireModalOpen(false);
       setCompanyForm({ companyName: "", contactName: "", email: "", needs: "Data Labeling", notes: "" });
       setTimeout(() => setNotification(null), 15000);
@@ -223,7 +223,7 @@ Additional Details: ${companyForm.notes || "None"}`;
       console.error("Error saving inquiry:", err);
       // Fallback
       window.location.href = mailtoUrl;
-      setNotification(`Hiring inquiry draft prepared for recruitment@zenire.in! (Local state ready; database sync skipped: ${err instanceof Error ? err.message : "network issue"})`);
+      setNotification(`Hiring inquiry draft prepared for support@zenire.in! (Local state ready; database sync skipped: ${err instanceof Error ? err.message : "network issue"})`);
       setHireModalOpen(false);
       setCompanyForm({ companyName: "", contactName: "", email: "", needs: "Data Labeling", notes: "" });
       setTimeout(() => setNotification(null), 15000);
@@ -242,6 +242,87 @@ Additional Details: ${companyForm.notes || "None"}`;
   // Authentication states
   const [currentUser, setCurrentUser] = useState<User | null>(null);
   const [adminQueryActive, setAdminQueryActive] = useState(false);
+
+  // Visitor tracking states
+  const [visitorCount, setVisitorCount] = useState<number | null>(null);
+  const [visitorCountLoading, setVisitorCountLoading] = useState(true);
+
+  // Track page visitor and subscribe to real-time stats count
+  useEffect(() => {
+    let unsubscribeStats: (() => void) | undefined;
+    
+    const initTracking = async () => {
+      try {
+        const docRef = doc(db, "stats", "visitors");
+        const alreadyCounted = sessionStorage.getItem("zenire_visitor_tracked");
+
+        if (!alreadyCounted) {
+          try {
+            await updateDoc(docRef, {
+              count: increment(1),
+              updatedAt: new Date().toISOString()
+            });
+            sessionStorage.setItem("zenire_visitor_tracked", "true");
+          } catch (err: any) {
+            // If the document doesn't exist (not-found or permissions for non-existing), let's create it
+            if (err.code === "not-found") {
+              await setDoc(docRef, {
+                count: 1,
+                updatedAt: new Date().toISOString()
+              });
+              sessionStorage.setItem("zenire_visitor_tracked", "true");
+            } else {
+              console.warn("Failed to increment visitor count on first attempt:", err);
+              // Let's check if the doc exists first to handle any other cold errors
+              try {
+                const docSnap = await getDoc(docRef);
+                if (!docSnap.exists()) {
+                  await setDoc(docRef, {
+                    count: 1,
+                    updatedAt: new Date().toISOString()
+                  });
+                  sessionStorage.setItem("zenire_visitor_tracked", "true");
+                } else {
+                  await updateDoc(docRef, {
+                    count: increment(1),
+                    updatedAt: new Date().toISOString()
+                  });
+                  sessionStorage.setItem("zenire_visitor_tracked", "true");
+                }
+              } catch (innerErr) {
+                console.error("Critical failure during visitor count initialization:", innerErr);
+              }
+            }
+          }
+        }
+
+        // Subscribe to real-time changes
+        unsubscribeStats = onSnapshot(docRef, (snapshot) => {
+          if (snapshot.exists()) {
+            setVisitorCount(snapshot.data().count);
+          } else {
+            setVisitorCount(0);
+          }
+          setVisitorCountLoading(false);
+        }, (error) => {
+          console.error("Error listening to stats:", error);
+          setVisitorCountLoading(false);
+        });
+
+      } catch (err) {
+        console.error("General error in visitor tracker logic:", err);
+        setVisitorCountLoading(false);
+      }
+    };
+
+    initTracking();
+
+    return () => {
+      if (unsubscribeStats) {
+        unsubscribeStats();
+      }
+    };
+  }, []);
 
   // Check URL parameters for hidden admin mode activation
   useEffect(() => {
@@ -569,7 +650,7 @@ Additional Details: ${companyForm.notes || "None"}`;
         canonicalLink.setAttribute("rel", "canonical");
         document.head.appendChild(canonicalLink);
       }
-      canonicalLink.setAttribute("href", `https://zenire.in/?job=${selectedJobDetails.id}`);
+      canonicalLink.setAttribute("href", `https://www.zenire.in/?job=${selectedJobDetails.id}`);
 
       // Inject structured JobPosting JSON-LD for Search Engines
       removeExistingSchema();
@@ -598,8 +679,8 @@ Additional Details: ${companyForm.notes || "None"}`;
         "hiringOrganization": {
           "@type": "Organization",
           "name": "Zenire.in",
-          "sameAs": "https://zenire.in/",
-          "logo": "https://zenire.in/assets/images/zenire_logo_1783707601229.jpg"
+          "sameAs": "https://www.zenire.in/",
+          "logo": "https://www.zenire.in/assets/images/zenire_logo_1783707601229.jpg"
         },
         "jobLocation": {
           "@type": "Place",
@@ -640,7 +721,7 @@ Additional Details: ${companyForm.notes || "None"}`;
 
       let canonicalLink = document.querySelector('link[rel="canonical"]');
       if (canonicalLink) {
-        canonicalLink.setAttribute("href", "https://zenire.in/");
+        canonicalLink.setAttribute("href", "https://www.zenire.in/");
       }
 
       // Inject Graph Schema for Homepage
@@ -654,20 +735,20 @@ Additional Details: ${companyForm.notes || "None"}`;
         "@graph": [
           {
             "@type": "WebSite",
-            "@id": "https://zenire.in/#website",
-            "url": "https://zenire.in/",
+            "@id": "https://www.zenire.in/#website",
+            "url": "https://www.zenire.in/",
             "name": "Zenire.in",
             "description": "Find remote jobs and freelance AI prompt training projects.",
             "publisher": {
-              "@id": "https://zenire.in/#organization"
+              "@id": "https://www.zenire.in/#organization"
             }
           },
           {
             "@type": "Organization",
-            "@id": "https://zenire.in/#organization",
+            "@id": "https://www.zenire.in/#organization",
             "name": "Zenire.in",
-            "url": "https://zenire.in/",
-            "logo": "https://zenire.in/assets/images/zenire_logo_1783707601229.jpg",
+            "url": "https://www.zenire.in/",
+            "logo": "https://www.zenire.in/assets/images/zenire_logo_1783707601229.jpg",
             "sameAs": [
               "https://twitter.com/zenire_in",
               "https://www.linkedin.com/company/zenire"
@@ -675,13 +756,13 @@ Additional Details: ${companyForm.notes || "None"}`;
           },
           {
             "@type": "ItemList",
-            "@id": "https://zenire.in/#joblist",
+            "@id": "https://www.zenire.in/#joblist",
             "name": "Active Remote Tech & AI Jobs",
             "numberOfItems": jobs.length,
             "itemListElement": jobs.slice(0, 15).map((job, index) => ({
               "@type": "ListItem",
               "position": index + 1,
-              "url": `https://zenire.in/?job=${job.id}`,
+              "url": `https://www.zenire.in/?job=${job.id}`,
               "name": job.title
             }))
           }
@@ -1341,10 +1422,14 @@ Additional Details: ${companyForm.notes || "None"}`;
           {/* Positions Grid */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {homepageJobs.map((job) => (
-              <div 
+              <a 
+                href={`/?job=${job.id}`}
                 key={job.id} 
-                onClick={() => setSelectedJobDetails(job)}
-                className="bg-white border border-slate-200/60 rounded-3xl p-6 flex flex-col justify-between hover:shadow-lg transition-all hover:-translate-y-1 duration-300 cursor-pointer group"
+                onClick={(e) => {
+                  e.preventDefault();
+                  setSelectedJobDetails(job);
+                }}
+                className="bg-white border border-slate-200/60 rounded-3xl p-6 flex flex-col justify-between hover:shadow-lg transition-all hover:-translate-y-1 duration-300 cursor-pointer group block text-left"
               >
                 <div>
                   <span className="text-[10px] font-bold text-slate-400 block mb-2">
@@ -1385,7 +1470,7 @@ Additional Details: ${companyForm.notes || "None"}`;
                     <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5" />
                   </div>
                 </div>
-              </div>
+              </a>
             ))}
           </div>
 
@@ -1950,30 +2035,28 @@ Additional Details: ${companyForm.notes || "None"}`;
                       </div>
 
                       <div className="grid grid-cols-2 gap-2 mt-2">
-                        <button 
+                        <a 
+                          href={`/?job=${job.id}`}
                           onClick={(e) => {
                             e.stopPropagation();
+                            e.preventDefault();
                             setSelectedJobDetails(job);
                           }}
-                          className="text-center py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-800 rounded-xl text-[10px] font-bold uppercase tracking-wider transition"
+                          className="text-center py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-800 rounded-xl text-[10px] font-bold uppercase tracking-wider transition block"
                         >
                           Read Details
-                        </button>
-                        <button 
+                        </a>
+                        <a 
+                          href={job.applyUrl ? job.applyUrl : `mailto:support@zenire.in?subject=${encodeURIComponent(`Application: ${job.title} - Zenire.in`)}&body=${encodeURIComponent(`Hi Zenire Operations Team,\n\nI want to apply for the "${job.title}" position (${job.pay}, Remote).\n\nName:\nEmail:\nLinkedIn/Portfolio:\nAttached Resume/Notes:\n\nThank you!`)}`}
+                          target={job.applyUrl ? "_blank" : undefined}
+                          rel={job.applyUrl ? "noopener noreferrer" : undefined}
                           onClick={(e) => {
                             e.stopPropagation();
-                            if (job.applyUrl) {
-                              window.open(job.applyUrl, "_blank", "noopener,noreferrer");
-                            } else {
-                              const subject = `Application: ${job.title} - Zenire.in`;
-                              const body = `Hi Zenire Operations Team,\n\nI want to apply for the "${job.title}" position (${job.pay}, Remote).\n\nName:\nEmail:\nLinkedIn/Portfolio:\nAttached Resume/Notes:\n\nThank you!`;
-                              window.open(`mailto:recruitment@zenire.in?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`, "_self");
-                            }
                           }}
-                          className="text-center py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-[10px] font-bold uppercase tracking-wider shadow-sm transition"
+                          className="text-center py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-[10px] font-bold uppercase tracking-wider shadow-sm transition block"
                         >
                           Apply Now
-                        </button>
+                        </a>
                       </div>
                     </div>
                   </div>
@@ -2247,7 +2330,7 @@ Additional Details: ${companyForm.notes || "None"}`;
               <section className="space-y-2">
                 <h3 className="text-sm font-black text-slate-900 uppercase tracking-wider">6. Contact Information</h3>
                 <p>
-                  For any privacy inquiries, please reach out directly to our support desk at <strong className="text-emerald-700">recruitment@zenire.in</strong>.
+                  For any privacy inquiries, please reach out directly to our support desk at <strong className="text-emerald-700">support@zenire.in</strong>.
                 </p>
               </section>
             </div>
@@ -2493,16 +2576,38 @@ Additional Details: ${companyForm.notes || "None"}`;
                   </p>
                 </div>
 
-                {/* Status Badge */}
-                <div className="bg-white border border-slate-200 rounded-2xl p-4 flex items-center gap-3 shrink-0 self-start md:self-auto shadow-sm">
-                  <div className={`h-2.5 w-2.5 rounded-full ${isEffectiveAdmin ? "bg-emerald-500 animate-pulse" : "bg-amber-500 animate-pulse"}`}></div>
-                  <div>
-                    <span className="block text-sm font-black text-slate-950 leading-none">
-                      {isEffectiveAdmin ? "Administrator Session" : "Unauthorized Session"}
-                    </span>
-                    <span className="text-[10px] text-slate-400 font-bold uppercase tracking-wider block mt-1">
-                      {currentUser ? currentUser.email : "Signed Out"}
-                    </span>
+                {/* Status & Analytics Badges */}
+                <div className="flex flex-col sm:flex-row items-stretch gap-3 shrink-0 self-start md:self-auto">
+                  {/* Status Badge */}
+                  <div className="bg-white border border-slate-200 rounded-2xl p-4 flex items-center gap-3 shadow-sm">
+                    <div className={`h-2.5 w-2.5 rounded-full ${isEffectiveAdmin ? "bg-emerald-500 animate-pulse" : "bg-amber-500 animate-pulse"}`}></div>
+                    <div>
+                      <span className="block text-sm font-black text-slate-950 leading-none">
+                        {isEffectiveAdmin ? "Administrator Session" : "Unauthorized Session"}
+                      </span>
+                      <span className="text-[10px] text-slate-400 font-bold uppercase tracking-wider block mt-1">
+                        {currentUser ? currentUser.email : "Signed Out"}
+                      </span>
+                    </div>
+                  </div>
+
+                  {/* Visitor Tracker Card */}
+                  <div className="bg-white border border-slate-200 rounded-2xl p-4 flex items-center gap-3 shadow-sm">
+                    <div className="p-2 bg-emerald-50 text-emerald-600 rounded-xl">
+                      <Users className="h-4 w-4" />
+                    </div>
+                    <div>
+                      <span className="block text-sm font-black text-slate-950 leading-none">
+                        {visitorCountLoading ? (
+                          <span className="text-slate-400 animate-pulse font-normal text-xs">Loading...</span>
+                        ) : (
+                          <span>{visitorCount?.toLocaleString() ?? "0"}</span>
+                        )}
+                      </span>
+                      <span className="text-[10px] text-slate-400 font-bold uppercase tracking-wider block mt-1">
+                        Total Website Visitors
+                      </span>
+                    </div>
                   </div>
                 </div>
               </div>
@@ -2971,6 +3076,9 @@ Additional Details: ${companyForm.notes || "None"}`;
                     <h3 className="text-base font-black text-slate-900 leading-none">
                       {selectedJobToApply ? "Apply for Position" : "Apply for Opportunities"}
                     </h3>
+                    <span className="text-[10px] uppercase font-bold tracking-wider text-emerald-600 block mt-0.5">
+                      Sends automatically to support@zenire.in
+                    </span>
                   </div>
                 </div>
 
@@ -3175,6 +3283,9 @@ Additional Details: ${companyForm.notes || "None"}`;
                   </div>
                   <div>
                     <h3 className="text-base font-black text-slate-900 leading-none">Hire Verified Talent</h3>
+                    <span className="text-[10px] uppercase font-bold tracking-wider text-emerald-600 block mt-0.5">
+                      Sends automatically to support@zenire.in
+                    </span>
                   </div>
                 </div>
 
@@ -3463,24 +3574,15 @@ Additional Details: ${companyForm.notes || "None"}`;
                   >
                     Back to Listings
                   </button>
-                  <button
-                    onClick={() => {
-                      const job = selectedJobDetails;
-                      if (job) {
-                        setSelectedJobDetails(null);
-                        if (job.applyUrl) {
-                          window.open(job.applyUrl, "_blank", "noopener,noreferrer");
-                        } else {
-                          const subject = `Application: ${job.title} - Zenire.in`;
-                          const body = `Hi Zenire Operations Team,\n\nI want to apply for the "${job.title}" position (${job.pay}, Remote).\n\nName:\nEmail:\nLinkedIn/Portfolio:\nAttached Resume/Notes:\n\nThank you!`;
-                          window.open(`mailto:recruitment@zenire.in?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`, "_self");
-                        }
-                      }
-                    }}
-                    className="flex-1 bg-emerald-600 hover:bg-emerald-700 text-white py-3 rounded-xl font-bold text-xs uppercase tracking-widest shadow-md hover:shadow-lg active:scale-[0.98] transition flex items-center justify-center gap-1.5"
+                  <a
+                    href={selectedJobDetails.applyUrl ? selectedJobDetails.applyUrl : `mailto:support@zenire.in?subject=${encodeURIComponent(`Application: ${selectedJobDetails.title} - Zenire.in`)}&body=${encodeURIComponent(`Hi Zenire Operations Team,\n\nI want to apply for the "${selectedJobDetails.title}" position (${selectedJobDetails.pay}, Remote).\n\nName:\nEmail:\nLinkedIn/Portfolio:\nAttached Resume/Notes:\n\nThank you!`)}`}
+                    target={selectedJobDetails.applyUrl ? "_blank" : undefined}
+                    rel={selectedJobDetails.applyUrl ? "noopener noreferrer" : undefined}
+                    onClick={() => setSelectedJobDetails(null)}
+                    className="flex-1 bg-emerald-600 hover:bg-emerald-700 text-white py-3 rounded-xl font-bold text-xs uppercase tracking-widest shadow-md hover:shadow-lg active:scale-[0.98] transition flex items-center justify-center gap-1.5 text-center"
                   >
                     <Send className="h-3.5 w-3.5" /> Apply for This Position Now
-                  </button>
+                  </a>
                 </div>
 
               </motion.div>
