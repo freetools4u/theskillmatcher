@@ -136,6 +136,22 @@
         }
       },
       "required": ["companyName", "contactName", "email", "needs", "createdAt"]
+    },
+    "stat": {
+      "title": "Site Analytics Stat",
+      "description": "A document for holding site statistics like visitor counts",
+      "type": "object",
+      "properties": {
+        "count": {
+          "type": "integer",
+          "description": "The total count of visitors"
+        },
+        "updatedAt": {
+          "type": "string",
+          "description": "The timestamp when the count was last updated"
+        }
+      },
+      "required": ["count"]
     }
   },
   "firestore": {
@@ -150,6 +166,10 @@
     "/inquiries/{inquiryId}": {
       "schema": "inquiry",
       "description": "The collection of recruiter/company hiring inquiries"
+    },
+    "/stats/{statId}": {
+      "schema": "stat",
+      "description": "The collection of site stats/analytics"
     }
   }
 }
