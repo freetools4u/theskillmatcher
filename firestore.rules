@@ -69,5 +69,13 @@ service cloud.firestore {
       // Only administrators can read or manage inquiries
       allow read, update, delete: if isAdmin();
     }
+
+    match /stats/{statId} {
+      // Allow public get, create, and update for tracking analytics (e.g. visitors)
+      allow get: if true;
+      allow create, update: if isValidId(statId) && (request.resource.data.count is int);
+      // Only administrators can list all stats or delete them
+      allow list, delete: if isAdmin();
+    }
   }
 }
