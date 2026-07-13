@@ -997,18 +997,6 @@ Additional Details: ${companyForm.notes || "None"}`;
             >
               Jobs Board
             </button>
-            {(isEffectiveAdmin || adminQueryActive) && (
-              <button 
-                onClick={() => { setCurrentView("admin"); window.scrollTo({ top: 0, behavior: "smooth" }); }} 
-                className={`text-xs font-extrabold uppercase tracking-wider transition px-3 py-1.5 rounded-lg border ${
-                  currentView === "admin" 
-                    ? "text-emerald-700 bg-emerald-50 border-emerald-100" 
-                    : "text-slate-600 hover:text-slate-900 border-transparent"
-                }`}
-              >
-                Admin Portal
-              </button>
-            )}
             <button onClick={() => handleSmoothScroll("explore-opportunities")} className="text-xs font-semibold uppercase tracking-wider text-slate-600 hover:text-slate-900 transition">Opportunities</button>
             <button onClick={() => handleSmoothScroll("how-it-works")} className="text-xs font-semibold uppercase tracking-wider text-slate-600 hover:text-slate-900 transition">How It Works</button>
             <button onClick={() => handleSmoothScroll("contributor-stories")} className="text-xs font-semibold uppercase tracking-wider text-slate-600 hover:text-slate-900 transition">Reviews</button>
@@ -1042,13 +1030,9 @@ Additional Details: ${companyForm.notes || "None"}`;
             >
               Jobs Board
             </button>
-            {(isEffectiveAdmin || adminQueryActive) && (
-              <button 
-                onClick={() => { setCurrentView("admin"); setMobileMenuOpen(false); window.scrollTo({ top: 0, behavior: "smooth" }); }} 
-                className={`block w-full text-left py-2 font-bold uppercase tracking-wider text-xs ${currentView === "admin" ? "text-emerald-600" : "text-slate-700 hover:text-slate-900"}`}
-              >
-                Admin Portal
-              </button>
+            <button onClick={() => handleSmoothScroll("explore-opportunities")} className="block w-full text-left py-2 font-semibold text-slate-700 hover:text-slate-900">Opportunities</button>
+            <button onClick={() => handleSmoothScroll("how-it-works")} className="block w-full text-left py-2 font-semibold text-slate-700 hover:text-slate-900">How It Works</button>
+            <button onClick={() => handleSmoothScroll("contributor-stories")} className="block w-full text-left py-2 font-semibold text-slate-700 hover:text-slate-900">Reviews & Testimonials</button>
             <div className="grid grid-cols-2 gap-3 pt-2">
               <button onClick={() => { setCurrentView("jobs"); setMobileMenuOpen(false); window.scrollTo({ top: 0, behavior: "smooth" }); }} className="w-full text-center py-2.5 bg-emerald-600 text-white rounded-lg text-xs font-bold uppercase tracking-wider">Explore Opportunities</button>
               <button onClick={() => { setHireModalOpen(true); setMobileMenuOpen(false); }} className="w-full text-center py-2.5 border border-slate-200 text-slate-950 rounded-lg text-xs font-bold uppercase tracking-wider">Hire Talent</button>
@@ -1056,7 +1040,9 @@ Additional Details: ${companyForm.notes || "None"}`;
           </motion.div>
         )}
       </AnimatePresence>
-      
+
+
+
       {currentView === "home" ? (
         <>
           {/* HERO SECTION */}
@@ -2356,7 +2342,7 @@ Additional Details: ${companyForm.notes || "None"}`;
               <section className="space-y-2">
                 <h3 className="text-sm font-black text-slate-900 uppercase tracking-wider">3. Third-Party Services and Cloud Infrastructure</h3>
                 <p>
-                  Our services are integrated with world-class cloud platforms. While we leverage industry-standard security measures, we make no representations or warranties regarding absolute security. Information transmitted over the internet or stored in cloud databases is inherently subject to external vulnerabilities.
+                  Our services are integrated with world-class cloud platforms including Google Cloud Platform and Firebase Firestore. While we leverage industry-standard security measures, we make no representations or warranties regarding absolute security. Information transmitted over the internet or stored in cloud databases is inherently subject to external vulnerabilities.
                 </p>
               </section>
 
@@ -3080,8 +3066,6 @@ Additional Details: ${companyForm.notes || "None"}`;
               <button onClick={() => { setCurrentView("terms"); window.scrollTo({ top: 0, behavior: "smooth" }); }} className="hover:text-slate-400 cursor-pointer transition">Terms of Service</button>
               <span>•</span>
               <button onClick={() => { setCurrentView("agreement"); window.scrollTo({ top: 0, behavior: "smooth" }); }} className="hover:text-slate-400 cursor-pointer transition">Candidate Agreement</button>
-              <span>•</span>
-              <button onClick={() => { window.scrollTo({ top: 0, behavior: "smooth" }); window.location.href = "https://www.zenire.in/sitemap.xml"; }} className="hover:text-slate-400 cursor-pointer transition" >Sitemap</button>
             </div>
           </div>
 
