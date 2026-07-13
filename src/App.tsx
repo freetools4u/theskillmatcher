@@ -2607,7 +2607,7 @@ Additional Details: ${companyForm.notes || "None"}`;
                     Job Board Live Management
                   </h1>
                   <p className="text-slate-600 text-sm max-w-2xl leading-relaxed">
-                    Create, update, or remove job listings dynamically in the Firebase Firestore database. All changes reflect live on the candidate-facing Jobs Board.
+                    The zenire.in uses secure & high quality backend services to protect the clients and parteners data. Feel free to contact us in case you want to recruit skilled workers from all over the globe.
                   </p>
                 </div>
 
@@ -2657,7 +2657,7 @@ Additional Details: ${companyForm.notes || "None"}`;
                     Access & Authorization Control
                   </h3>
                   <p className="text-xs text-slate-500 leading-relaxed">
-                    This administrative portal is fully secured. Access and document write privileges are strictly limited to the verified administrator email <strong className="text-emerald-700">swipetoconnect@gmail.com</strong>.
+                    You cant access this. Kindly return back to the homepage to see Open positions or to Inquire about hiring process. <strong>Thanks</strong>.
                   </p>
                 </div>
 
@@ -2940,9 +2940,9 @@ Additional Details: ${companyForm.notes || "None"}`;
               // Unauthorized Access Block
               <div className="bg-white border border-slate-200 rounded-3xl p-10 text-center max-w-lg mx-auto shadow-md">
                 <Lock className="h-12 w-12 text-amber-500 mx-auto mb-4" />
-                <h3 className="text-lg font-black text-slate-950 mb-2">Authorized Access Required</h3>
+                <h3 className="text-lg font-black text-slate-950 mb-2">Access Denied</h3>
                 <p className="text-xs text-slate-500 leading-relaxed mb-6">
-                  This portal manages live production job listings. Access is restricted to authenticated administrators. Please sign in with the authorized account (<strong className="text-emerald-700">swipetoconnect@gmail.com</strong>) to manage listings.
+                  This portal manages live production job listings. Access is restricted to authenticated administrators. Please return to the homepage to see Open Job postions or to enquire about our hiring process.
                 </p>
                 <div className="flex flex-col gap-3">
                   <button 
