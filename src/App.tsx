@@ -3251,6 +3251,8 @@ service cloud.firestore {
               <button onClick={() => { setCurrentView("terms"); window.scrollTo({ top: 0, behavior: "smooth" }); }} className="hover:text-slate-400 cursor-pointer transition">Terms of Service</button>
               <span>•</span>
               <button onClick={() => { setCurrentView("agreement"); window.scrollTo({ top: 0, behavior: "smooth" }); }} className="hover:text-slate-400 cursor-pointer transition">Candidate Agreement</button>
+              <span>•</span>
+              <button onClick={() => { window.scrollTo({ top: 0, behavior: "smooth" }); window.location.href = "https://www.zenire.in/sitemap.xml"; }} className="hover:text-slate-400 cursor-pointer transition" >Sitemap</button>
             </div>
           </div>
 
