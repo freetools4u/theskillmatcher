@@ -22,13 +22,13 @@ export interface TestimonialData {
   avatarUrl?: string;
 }
 
-// Rewritten, unique, highly professional testimonials for Zenire AI
+// Rewritten, unique, highly professional testimonials for Zenire.in
 export const rewrittenTestimonials: TestimonialData[] = [
   {
     id: "t1",
     name: "Elena Sterling",
     country: "United Kingdom",
-    quote: "As an academic researcher, finding flexible freelance projects that align with my expertise was difficult. Zenire AI matched me with high-level prompt evaluation tasks in cognitive biochemistry. Outstanding communication and seamless weekly payouts!",
+    quote: "As an academic researcher, finding flexible freelance projects that align with my expertise was difficult. Zenire matched me with high-level prompt evaluation tasks in cognitive biochemistry. Outstanding communication and seamless weekly payouts!",
     avatarColor: "bg-blue-600",
     initials: "ES",
     avatarUrl: "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&q=80&w=150&h=150"
@@ -37,7 +37,7 @@ export const rewrittenTestimonials: TestimonialData[] = [
     id: "t2",
     name: "Siddharth Nair",
     country: "India",
-    quote: "The vetting process at Zenire AI is thorough but extremely rewarding. I was onboarded into an exclusive code generation evaluation cohort within days. It has completely elevated my remote consulting career.",
+    quote: "The vetting process at Zenire is thorough but extremely rewarding. I was onboarded into an exclusive code generation evaluation cohort within days. It has completely elevated my remote consulting career.",
     avatarColor: "bg-emerald-600",
     initials: "SN",
     avatarUrl: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&q=80&w=150&h=150"
@@ -46,7 +46,7 @@ export const rewrittenTestimonials: TestimonialData[] = [
     id: "t3",
     name: "Sophia Martinez",
     country: "United States",
-    quote: "Zenire AI has a wonderful ecosystem. I work as an AI Safety and Alignment Specialist, and the variety of prompt-engineering and safety red-teaming tasks keeps my schedule both highly flexible and engaging. Outstanding admin team!",
+    quote: "Zenire has a wonderful ecosystem. I work as an AI Safety and Alignment Specialist, and the variety of prompt-engineering and safety red-teaming tasks keeps my schedule both highly flexible and engaging. Outstanding admin team!",
     avatarColor: "bg-purple-600",
     initials: "SM",
     avatarUrl: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&q=80&w=150&h=150"
@@ -55,7 +55,7 @@ export const rewrittenTestimonials: TestimonialData[] = [
     id: "t4",
     name: "Dr. Arthur Vance",
     country: "Canada",
-    quote: "As a retired mathematics professor, I enjoy applying my domain expertise to challenge reasoning models. Zenire AI connects me with highly challenging and intellectually satisfying work that I can do right from my home office.",
+    quote: "As a retired mathematics professor, I enjoy applying my domain expertise to challenge reasoning models. Zenire connects me with highly challenging and intellectually satisfying work that I can do right from my home office.",
     avatarColor: "bg-amber-600",
     initials: "AV",
     avatarUrl: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&q=80&w=150&h=150"
@@ -64,7 +64,7 @@ export const rewrittenTestimonials: TestimonialData[] = [
     id: "t5",
     name: "Chidi Nwosu",
     country: "Nigeria",
-    quote: "I've worked with several crowdsourcing groups, but Zenire AI is on another level. The prompt guidelines are clear, their testing platform is robust, and the pay rates are highly competitive for quality evaluators.",
+    quote: "I've worked with several crowdsourcing groups, but Zenire.in is on another level. The prompt guidelines are clear, their testing platform is robust, and the pay rates are highly competitive for quality evaluators.",
     avatarColor: "bg-rose-600",
     initials: "CN",
     avatarUrl: "https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?auto=format&fit=crop&q=80&w=150&h=150"
@@ -82,7 +82,7 @@ export const rewrittenTestimonials: TestimonialData[] = [
     id: "t7",
     name: "Marc Dumont",
     country: "France",
-    quote: "Zenire AI provided fantastic onboarding. I've been training reinforcement learning models with direct human feedback (RLHF) for months now, and their support staff makes the entire workflow stress-free.",
+    quote: "Zenire.in provided fantastic onboarding. I've been training reinforcement learning models with direct human feedback (RLHF) for months now, and their support staff makes the entire workflow stress-free.",
     avatarColor: "bg-teal-600",
     initials: "MD",
     avatarUrl: "https://images.unsplash.com/photo-1492562080023-ab3db95bfbce?auto=format&fit=crop&q=80&w=150&h=150"
@@ -91,7 +91,7 @@ export const rewrittenTestimonials: TestimonialData[] = [
     id: "t8",
     name: "Gabriela Silva",
     country: "Brazil",
-    quote: "What I appreciate most about Zenire AI is the absolute scheduling flexibility. I can contribute to advanced AI evaluation and translation validation projects around my main work hours without any stress.",
+    quote: "What I appreciate most about Zenire.in is the absolute scheduling flexibility. I can contribute to advanced AI evaluation and translation validation projects around my main work hours without any stress.",
     avatarColor: "bg-pink-600",
     initials: "GS",
     avatarUrl: "https://images.unsplash.com/photo-1567532939604-b6b5b0db2604?auto=format&fit=crop&q=80&w=150&h=150"
@@ -100,7 +100,7 @@ export const rewrittenTestimonials: TestimonialData[] = [
     id: "t9",
     name: "Amina Al-Mansoor",
     country: "United Arab Emirates",
-    quote: "Participating in domain-expert model training on Zenire AI has been an amazing experience. They truly value expert contributions in medical sciences and make the onboarding flow extremely clear.",
+    quote: "Participating in domain-expert model training on Zenire.in has been an amazing experience. They truly value expert contributions in medical sciences and make the onboarding flow extremely clear.",
     avatarColor: "bg-sky-600",
     initials: "AM",
     avatarUrl: "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&q=80&w=150&h=150"
